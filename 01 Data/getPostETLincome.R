@@ -1,1 +1,0 @@
-df <- read.csv("https://query.data.world/s/cv68hd0hjsc1vpydadpayw86g",header=T);

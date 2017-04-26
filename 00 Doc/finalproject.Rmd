@@ -1,0 +1,88 @@
+---
+title: '<center><b>An Exploration of Texas Government Educational Spending and Regional Income Levels </b></center>'
+author: "<center><b>Kimberly Hollman, Kyle Katzen, Roy Lin</b></center>"
+date: "<center>May 03, 2017</center>"
+output:
+  html_document:
+    toc: yes
+  html_notebook:
+    depth: 3
+    number_sections: yes
+    toc: yes
+---
+![flag](../03 Visualizations/flag.jpg)
+
+
+```{r}
+sessionInfo()
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+options(max.print = 40)
+
+```
+
+#**Introduction**
+This is our Final Project R-markdown document. Our group explored data from two public government databases. 
+The first is titled "US Census population estimates, Income (American Community Survey, 2011-2015)". The dataset includes population estimates of Income categorized and subcategorized into groups according to age, race, and educational background.
+
+and was sourced from the US Census Bureau datasets archived in data.world. 
+
+The second is "DIR Cooperative Contract Sales Data – Fiscal 2010 to Present", which was sourced through the TX government database website (https://data.texas.gov/Business-and-Economy/DIR-Cooperative-Contract-Sales-Data-Fiscal-2010-to/w4x7-gfja/data). 
+
+#**Extract-Translate-Load (ETL)**
+In order to extract the pertinent data from our raw CSVs, we generated a number of R-scripts that tidied current data and excised nonrelevant data that were not used in our Tableau and ShinyApp visualizations. Our cleaned-up (post-ETL) versions were then uploaded to the data.world servers, available for downloading and querying.
+Data manipulations will be shown for only one ACS CSV file, but similar methods were used for the remaining three files.
+## 1. Raw (Pre-ETL) CSVs:
+You can see the raw csv file for demogrpahic income contains data across more subdivisions than were necessary in this project. 
+```{r getpre}
+source("../01 Data/INCgetpre.R")
+head(INCpre, size=15)
+```
+## 2. ETL script to distill data:
+Plyr and dplyr functions were used to filter out the pertinent information. Separate scripts were used for each file. 
+```{r getetl}
+source("../01 Data/INCetl.r", echo=TRUE)
+```
+## 3. Finished (Post-ETL) CSV file:
+Workable CSVs contain only national data grouped by state (excl. DC and Puerto Rico) and pertaining to population demographic delineations of age, sex, race, income, and employment.
+The finished CSV documents were much smaller in size, and better enabled us to investigate trends and correlations between datasets.
+```{r getpost}
+source("../01 Data/INCgetpost.R")
+head(INCpost, size=15)
+```
+
+# **Charts**
+## Non-Aggregated Measures Analysis
+[description]
+![na](../03 Visualizations/vis1.png)
+
+
+## Aggregated Measures Analysis
+[description]
+![ag](../03 Visualizations/flag.jpg)
+
+## Scatter Plots
+[description]
+![sp](../03 Visualizations/flag.jpg)
+
+
+## Crosstabs
+[description]
+![ct](../03 Visualizations/flag.jpg)
+
+## Barcharts
+[description]
+![bc](../03 Visualizations/flag.jpg)
+
+## Joining Tables
+[description]
+![jt](../03 Visualizations/flag.jpg)
+
+## Data Blending
+[description]
+![db](../03 Visualizations/flag.jpg)
+
+# **Link to Shiny app application**
+Here is our link to our shiny app application: https://katzen.shinyapps.io/02Shiny/
