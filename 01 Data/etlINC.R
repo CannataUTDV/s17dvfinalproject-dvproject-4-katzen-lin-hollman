@@ -3,7 +3,7 @@ require(plyr)
 require(dplyr)
 
 #[CALL CSV]
-file_path = "../01 Data/INCpre.csv"
+file_path = "../01 Data/preINC.csv"
 PREincomedf <- readr::read_csv(file_path)
 options(stringsAsFactors = FALSE)
 

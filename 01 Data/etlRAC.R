@@ -3,7 +3,7 @@ require(plyr)
 require(dplyr)
 
 #[CALL CSV]
-file_path = "../01 Data/EDUpre.csv"
+file_path = "../01 Data/preRAC.csv"
 PREdf <- readr::read_csv(file_path)
 options(stringsAsFactors = FALSE)
 
@@ -16,15 +16,11 @@ df <- df %>% dplyr::filter(AreaName !='District of Columbia') %>% dplyr::filter(
 #[RENAME TO PRESERVE COLUMN]
 df <- plyr::rename(df, c("AreaName" = "State" ))
 
-#[SEPARATE DESIRED COLUMNS]
-#[EDUCATIONAL ATTAINMENT BY AGE, SEX, AND RACE]
-dfA <- plyr::rename(df, c("State" = "C15002" )) %>% dplyr::select(starts_with("C15002")) %>% dplyr::select(C15002:C15002E_011) %>% plyr::rename(c("C15002" = "State" ))
+#[RACE FOR TOTAL POPULATION]
+dfA <- df %>% plyr::rename(c("State" = "B02001" )) %>% dplyr::select(starts_with("B02001")) %>% dplyr::select(B02001:B02001_007)
 
-#[MEDIAN HOUSEHOLD INCOME BY RACE]
-dfB <- plyr::rename(df, c("State" = "B1501" )) %>% dplyr::select(starts_with("B1501")) %>% dplyr::select(B1501:B15012_010) %>% plyr::rename(c("B1501" = "State" ))
+dfA <- dplyr::rename(dfA, State = B02001, pop.total = B02001_001, pop.white = B02001_002, pop.black = B02001_003, pop.americanindian = B02001_004, pop.asian = B02001_005, pop.pacificislander = B02001_006, pop.other = B02001_007)
 
-#JOIN
-df1 <- dplyr::left_join(dfA, dfB, by="State")
 
 # create a new .csv file
-write.csv(df1, gsub("pre", "post", file_path), row.names=FALSE, na = "")
+write.csv(dfA, gsub("pre", "post", file_path), row.names=FALSE, na = "")

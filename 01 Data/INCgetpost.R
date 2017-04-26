@@ -1,1 +1,0 @@
-INCpost <- read.csv("https://query.data.world/s/9v65d0s9m8x2mf62oljjectgx",header=T)

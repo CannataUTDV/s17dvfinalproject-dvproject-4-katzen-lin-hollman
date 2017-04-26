@@ -39,22 +39,22 @@ Data manipulations will be shown for only one ACS CSV file, but similar methods 
 As you can see below, the raw csv contains data across more variables than were necessary for this project. 
 ```{r getpre}
 library(knitr)
-source("../01 Data/INCgetpre.R")
-kable(INCpre, digits = 0)
+source("../01 Data/getpreINC.R")
+kable(preINC, digits = 0)
 ```
 
 ## 2. ETL script to distill data:
 Plyr and dplyr functions were used to filter out the pertinent information. Separate scripts were used for each file. 
 ```{r getetl}
-source("../01 Data/INCetl.r", echo=TRUE, print.eval=FALSE, verbose=FALSE, keep.source=TRUE)
+source("../01 Data/etlINC.r", echo=TRUE, print.eval=FALSE, verbose=FALSE, keep.source=TRUE)
 ```
 ## 3. Finished (Post-ETL) CSV file:
 Workable CSVs contain only national data grouped by state (excl. DC and Puerto Rico) and pertaining to population demographic delineations of age, sex, race, income, and employment.
 The finished CSV documents were much smaller in size, and better enabled us to investigate trends and correlations between datasets.
 ```{r getpost}
 library(knitr)
-source("../01 Data/INCgetpost.R")
-kable(INCpost, digits = 0)
+source("../01 Data/getpostINC.R")
+kable(postINC, digits = 0)
 ```
 
 # **Charts**
