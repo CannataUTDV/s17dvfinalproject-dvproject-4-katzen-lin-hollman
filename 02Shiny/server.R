@@ -32,7 +32,7 @@ list_forcustomertype <- append(list("All" = "All"), list_forcustomertype)
 
 list_forboxplot <- list_forcustomertype
 list_forbarchart <- list_forcustomertype
-#list_forcrosstab <- list(KPI_Low(), KPI_Medium())
+#l
 
 
 ######################## REMEBER TO INCLUDE THESE ######################
@@ -74,16 +74,16 @@ shinyServer(function(input, output){
                     from postMED
                     limit 100"
     
-    crosstabquery <- "SELECT AVG(postMED.Greater_Risk_Data_Value) avg_risk, postMED.State,
-                    case
-                    when AVG(postMED.Greater_Risk_Data_Value) < 25 then '03 Low'
-                    when AVG(postMED.Greater_Risk_Data_Value) < 30 then '02 Medium'
-                    else '01 High'
-                    end as kpi
+    crosstabquery <- "SELECT AVG(postMED.Greater_Risk_Data_Value) avg_risk, postMED.State, postMED.Race,
+                      case
+                      when AVG(postMED.Greater_Risk_Data_Value) < ? then '03 Low'
+                      when AVG(postMED.Greater_Risk_Data_Value) < ? then '02 Medium'
+                      else '01 High'
+                      end as kpi
     
-                    FROM postMED
-                    Group By State
-                    Order by avg_risk desc"
+                      FROM postMED
+                      Group By State, Race
+                      Order by State, Race"
     
     barchartquery <- "select Race, Topic, AVG(Greater_Risk_Data_Value) avg_grisk from postMED group by Race, Topic"    
     
@@ -129,7 +129,7 @@ shinyServer(function(input, output){
         dataset= database, 
         type="sql",
         query=crosstabquery,
-        queryParameters = list_forcrosstab )
+        queryParameters = list(KPI_Low(), KPI_Medium()))
     })  
     
 
@@ -202,12 +202,14 @@ shinyServer(function(input, output){
     #   ggplotly(bxp)
     # })
     # 
-    # output$crosstabPlot1 <- renderPlotly({
-    #   bxp <- ggplot(crosstabfunc()) +
-    #     geom_boxplot(aes(x=CustomerType, y = PurchaseAmount))+
-    #     theme_classic()
-    #   ggplotly(bxp)
-    # })
+    output$crosstabPlot1 <- renderPlotly({
+      crossplot <- ggplot(crosstabfunc()) + 
+        #theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+        #theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+        geom_text(aes(x=Race, y=State, label=round(avg_risk)), size=6) +
+        geom_tile(aes(x=Race, y=State, fill=kpi), alpha=0.5)
+      ggplotly(crossplot)
+    })
     # 
     output$barchartPlot1 <- renderPlotly({
       barplot <- ggplot(barchartfunc(), aes(x = Topic, y=avg_grisk)) +

@@ -36,12 +36,12 @@ scattertabitems <- tabItem(tabName = "scatter", tabsetPanel(scatterdatapanel, sc
 crosstabmenuitem <- menuItem("Crosstabs", tabName = "crosstab", icon = icon("dashboard"))
 crosstabdatapanel <- tabPanel("Data", uiOutput("crosstablist"),
                               sliderInput("KPI1", "KPI_Low:", 
-                                          min = 0, max = .1,  value = .1),
+                                          min = 20, max = 30,  value = 1),
                               sliderInput("KPI2", "KPI_Medium:", 
-                                          min = .1, max = .2,  value = .2),
+                                          min = 30, max = 40,  value = 1),
                              actionButton("crosstabbtn", "Get Data"),
                              DT::dataTableOutput("crosstabData"))
-crosstabvispanel <- tabPanel("Crosstab", plotlyOutput("crosstabPlot1", height=500))
+crosstabvispanel <- tabPanel("Crosstab", plotlyOutput("crosstabPlot1", height=1200))
 crosstabtabitems <- tabItem(tabName = "crosstab", tabsetPanel(crosstabdatapanel, crosstabvispanel))
 #end crosstab items-----
 
