@@ -47,6 +47,9 @@ shinyServer(function(input, output){
                   multiple = TRUE, selected = "All")
     })
     
+    #widgets for Histogram Tab
+    Bins <- reactive({input$Bin_Size})
+    
     #Widgets for Crosstabs Tab
     KPI_Low <- reactive({input$KPI1})
     KPI_Medium <- reactive({input$KPI2})
@@ -66,12 +69,11 @@ shinyServer(function(input, output){
                     where (? = 'All' or postMED.Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))
                     limit 100"
     
-    histogramquery <- "select *
-                      from postMED
-                      limit 100"
+    histogramquery <- "SELECT Greater_Risk_Data_Value, Race
+                      from postMED"
     
-    scatterquery <- "select *
-                    from postMED
+    scatterquery <- "select pm.Greater_Risk_Data_Value
+                    from postMED pm, postEDU pe
                     limit 100"
     
     crosstabquery <- "SELECT AVG(postMED.Greater_Risk_Data_Value) avg_risk, postMED.State, postMED.Race,
@@ -188,20 +190,22 @@ shinyServer(function(input, output){
     
     ########################################COME BACK TO MAKE THESE GOOD ##############
         
-    # output$histogramPlot1 <- renderPlotly({
-    #   bxp <- ggplot(histogramfunc()) +
-    #     geom_boxplot(aes(x=CustomerType, y = PurchaseAmount))+
-    #     theme_classic()
-    #   ggplotly(bxp)
-    # })
-    # 
-    # output$scatterPlot1 <- renderPlotly({
-    #   bxp <- ggplot(scatterfunc()) +
-    #     geom_boxplot(aes(x=CustomerType, y = PurchaseAmount))+
-    #     theme_classic()
-    #   ggplotly(bxp)
-    # })
-    # 
+    output$histogramPlot1 <- renderPlotly({
+      histogramplot <- ggplot(histogramfunc()) + 
+        theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+        geom_histogram(aes(x= Greater_Risk_Data_Value, y = ..ncount..), binwidth = as.numeric(Bins())) +
+        facet_wrap(~Race)
+      ggplotly(histogramplot)
+    })
+
+    output$scatterPlot1 <- renderPlotly({
+      scatterplot <- ggplot(scatterfunc()) + 
+        theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+        theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+        geom_point(aes(x= , y= Greater_Risk_Data_Value, color=Race, size=6))
+      ggplotly(scatterplot)
+    })
+
     output$crosstabPlot1 <- renderPlotly({
       crossplot <- ggplot(crosstabfunc()) + 
         #theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 

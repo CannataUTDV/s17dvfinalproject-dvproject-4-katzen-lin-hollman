@@ -19,7 +19,8 @@ histogrammenuitem <- menuItem("Histograms", tabName = "histogram", icon = icon("
 histogramdatapanel <- tabPanel("Data", uiOutput("histogramlist"),
                              actionButton("histogrambtn", "Get Data"),
                              DT::dataTableOutput("histogramData"))
-histogramvispanel <- tabPanel("Histogram", plotlyOutput("histogramPlot1", height=500))
+histogramvispanel <- tabPanel("Histogram", sliderInput("Bin_Size", "Bins:", min = 1, max = 50,  value = 1),
+                              plotlyOutput("histogramPlot1", height=500))
 histogramtabitems <- tabItem(tabName = "histogram", tabsetPanel(histogramdatapanel, histogramvispanel))
 #end histogram items-----
 
