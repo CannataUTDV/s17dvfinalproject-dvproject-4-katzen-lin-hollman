@@ -1,5 +1,6 @@
 # server.R
 require(ggplot2)
+require(ggthemes)
 require(dplyr)
 require(shiny)
 require(shinydashboard)
@@ -32,6 +33,7 @@ list_forcustomertype <- append(list("All" = "All"), list_forcustomertype)
 
 list_forboxplot <- list_forcustomertype
 list_forbarchart <- list_forcustomertype
+list_forboxplot <- list_forcustomertype
 #l
 
 
@@ -64,17 +66,19 @@ shinyServer(function(input, output){
     ############################# QUERIES ################################
     
     
-    boxplotquery <- "select *
+    boxplotquery <- "select Topic, Greater_Risk_Data_Value
                     from postMED
-                    where (? = 'All' or postMED.Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))
-                    limit 100"
+                    where (? = 'All' or postMED.Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))"
     
     histogramquery <- "SELECT Greater_Risk_Data_Value, Race
                       from postMED"
     
-    scatterquery <- "select pm.Greater_Risk_Data_Value
-                    from postMED pm, postEDU pe
-                    limit 100"
+    scatterquery <- "SELECT pr.State, pr.`pop.total` total, pr.`pop.white` white, 
+                    pr.`pop.white`/pr.`pop.total` whiteper, 
+                    AVG(pm.postMED.Greater_Risk_Data_Value) avg_risk
+                    from postMED pm
+                    inner join postRAC pr on pr.State = pm.State
+                    group by pm.State"
     
     crosstabquery <- "SELECT AVG(postMED.Greater_Risk_Data_Value) avg_risk, postMED.State, postMED.Race,
                       case
@@ -87,7 +91,13 @@ shinyServer(function(input, output){
                       Group By State, Race
                       Order by State, Race"
     
-    barchartquery <- "select Race, Topic, AVG(Greater_Risk_Data_Value) avg_grisk from postMED group by Race, Topic"    
+    barchartquery <- "select Race, Topic, AVG(Greater_Risk_Data_Value) avg_grisk from postMED 
+                      where (? = 'All' or Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))
+                      group by Race, Topic"
+    
+    mapquery <- "SELECT Latitude, Longitude, AVG(postMED.Greater_Risk_Data_Value) avg_risk, State
+                FROM `postMED.csv/postMED`
+                Group by Latitude, Longitude"
     
     
 ######################## FUNCTIONS FOR DATA FRAMES ####################
@@ -101,7 +111,7 @@ shinyServer(function(input, output){
         dataset= database, 
         type="sql",
         query=boxplotquery,
-        queryParameters = list_forboxplot )
+        queryParameters = list_forboxplot)
     })  
 
     histogramfunc <- eventReactive(input$histogrambtn, {
@@ -138,17 +148,25 @@ shinyServer(function(input, output){
     barchartfunc <- eventReactive(input$barchartbtn, {
       if(input$selectedbarchartlist == 'All') list_forbarchart <- input$selectedbarchartlist
       else list_forbarchart <- append(list("Skip" = "Skip"), input$selectedbarchartlist)
-      print("Getting from data.world")
-      df <- query(
+      if (TRUE) {
+        print("Getting from data.world")
+        tdf <- query(
+          data.world(propsfile = ".data.world"),
+          dataset= database, 
+          type="sql",
+          query=barchartquery,
+          queryParameters = list_forbarchart)
+      }
+      
+      tdf2 <- tdf %>% dplyr::group_by(Race) %>% dplyr::summarize(window_avg = mean(avg_grisk))
+      dplyr::inner_join(tdf, tdf2, by = "Race")
+    })  
+    
+    mapfunc <-  query(
         data.world(propsfile = ".data.world"),
         dataset= database, 
         type="sql",
-        query=barchartquery,
-        queryParameters = list_forbarchart )
-      
-      df2 <- df %>% dplyr::group_by(Race) %>% dplyr::summarize(window_avg = mean(avg_grisk))
-      dplyr::inner_join(df, df2, by = "Race")
-    })  
+        query=mapquery)
     
 
     ################################################################
@@ -180,38 +198,43 @@ shinyServer(function(input, output){
                                                                            FixedHeader = TRUE)
     )})
     
-    #GGPLOTLY STUFF
+    ##########################GGPLOTLY STUFF
     output$boxplotPlot1 <- renderPlotly({
       bxp <- ggplot(boxplotfunc()) +
-             geom_boxplot(aes(x=CustomerType, y = PurchaseAmount))+
-             theme_classic()
+             geom_boxplot(aes(x=Topic, y = Greater_Risk_Data_Value))+
+        lab(title = "Distribution of Risk Values by Topic", x = "Topics", y = "Risk Factor Values")
+        theme_wsj() + scale_color_wsj()
       ggplotly(bxp)
     })
-    
-    ########################################COME BACK TO MAKE THESE GOOD ##############
         
     output$histogramPlot1 <- renderPlotly({
       histogramplot <- ggplot(histogramfunc()) + 
         theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
         geom_histogram(aes(x= Greater_Risk_Data_Value, y = ..ncount..), binwidth = as.numeric(Bins())) +
-        facet_wrap(~Race)
+        facet_wrap(~Race) +
+        labs(x = "Risk Factor Values", y = "Count of Studies", "Does Intensity of Risk Factors vary by Race?") +
+        theme_wsj() + scale_color_wsj()
       ggplotly(histogramplot)
     })
 
     output$scatterPlot1 <- renderPlotly({
-      scatterplot <- ggplot(scatterfunc()) + 
+      scatterplot <- ggplot(scatterfunc(), aes(x = whiteper, y = avg_risk)) + 
         theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
         theme(axis.text.y=element_text(size=16, hjust=0.5)) +
-        geom_point(aes(x= , y= Greater_Risk_Data_Value, color=Race, size=6))
+        geom_point(aes(x=whiteper, y = avg_risk, size=6)) +
+        geom_smooth(method=lm, se=FALSE, color = "red") +
+        labs(x = "Percentage of Whites", y = "Average Risk Factor", 
+             title = "Does Population perportion affect Risk Factors?") +
+        theme_wsj() + scale_color_wsj()
       ggplotly(scatterplot)
     })
 
     output$crosstabPlot1 <- renderPlotly({
       crossplot <- ggplot(crosstabfunc()) + 
-        #theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
-        #theme(axis.text.y=element_text(size=16, hjust=0.5)) +
         geom_text(aes(x=Race, y=State, label=round(avg_risk)), size=6) +
-        geom_tile(aes(x=Race, y=State, fill=kpi), alpha=0.5)
+        geom_tile(aes(x=Race, y=State, fill=kpi), alpha=0.5) +
+        labs(title = "The Average Risk By Race and State") +
+        theme_wsj() + scale_color_wsj()
       ggplotly(crossplot)
     })
     # 
@@ -223,14 +246,26 @@ shinyServer(function(input, output){
         geom_bar(stat = "identity") + 
         facet_wrap(~ Race) + 
         coord_flip() + 
-        # Add sum_sales, and (sum_sales - window_avg_sales) label.
-        geom_text(mapping=aes(x=Topic, y=avg_grisk, label=round(avg_grisk)),colour="black", hjust=-.5) +
-        geom_text(mapping=aes(x=Topic, y=avg_grisk, label=round(avg_grisk - window_avg)),colour="blue", hjust=-2) +
+        geom_text(mapping=aes(x=Topic, y=avg_grisk+2, label=round(avg_grisk)),colour="black", nudge_x = .15) +
+        geom_text(mapping=aes(x=Topic, y=avg_grisk+7, label=round(avg_grisk - window_avg)),colour="blue", nudge_x = .15) +
         # Add reference line with a label.
         geom_hline(aes(yintercept = round(window_avg)), color="red") +
-        geom_text(aes( -1, window_avg, label = window_avg, vjust = -.5, hjust = -.25), color="red")
+        geom_text(aes( .5, window_avg+5, label = round(window_avg), vjust = -.5, hjust = 1), color="red") +
+        labs(x = "", y = "Average Risk", title = "Average Risk by Race and Topic")+
+        theme_wsj() + scale_color_wsj()
       ggplotly(barplot)
     })
+    
+    output$Map1 <- renderLeaflet({leaflet(width = 400, height = 800) %>% 
+        setView(lng = -98.35, lat = 39.5, zoom = 4) %>% 
+        addTiles() %>% 
+        addMarkers(lng = mapfunc$Longitude,
+                   lat = mapfunc$Latitude,
+                   options = markerOptions(draggable = TRUE, riseOnHover = TRUE),
+                   popup = as.character(paste("Average Risk: ", mapfunc$avg_risk, ", ", mapfunc$State)))
+    })
+    
+    
     
     
     

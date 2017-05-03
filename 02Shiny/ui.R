@@ -51,8 +51,9 @@ barchartmenuitem <- menuItem("Bar Charts", tabName = "barchart", icon = icon("da
 barchartdatapanel <- tabPanel("Data", uiOutput("barchartlist"),
                              actionButton("barchartbtn", "Get Data"),
                              DT::dataTableOutput("barchartData"))
-barchartvispanel <- tabPanel("Bar Chart", plotlyOutput("barchartPlot1", height=500))
-barcharttabitems <- tabItem(tabName = "barchart", tabsetPanel(barchartdatapanel, barchartvispanel))
+barchartvispanel <- tabPanel("Bar Chart", plotlyOutput("barchartPlot1", height = 1200))
+barchartmappanel <- tabPanel("Map", leafletOutput("Map1"), height=900 )
+barcharttabitems <- tabItem(tabName = "barchart", tabsetPanel(barchartdatapanel, barchartmappanel, barchartvispanel))
 #end barchart items-----
 
 #################### SHINY STRUCTURE ########################
