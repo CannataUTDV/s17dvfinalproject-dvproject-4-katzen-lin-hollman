@@ -89,4 +89,26 @@ kable(postINC, digits = 0)
 ![db](../03 Visualizations/flag.jpg)
 
 # **Link to Shiny app application**
-Here is our link to our shiny app application: https://katzen.shinyapps.io/02Shiny/
+Here is our link to our shiny app application: https://katzen.shinyapps.io/khlshiny/
+
+# Here are our Shiny Plots
+
+## Boxplot
+It's a plotly boxplot that shows the distribution of the various risk factors by topic. You can change which topics you see when you get the data.
+![shinybx](../03 Visualizations/shinybox.png)
+
+## Histogram
+This histogram measures the frequency of risk factors as it relates to their intensity. Becasue the counts for each race were not equal, in order to compare them they are all normalized to where the largest count for a window equals one. Also, you can change the bin sizes on the fly.
+![shinyhs](../03 Visualizations/shinyhist.png)
+
+## Scatter Plot
+The labels aren't showing up for some reason, but the x axis is percentage of white people in a state and the y axis is that states average risk factor. It doesn't appear very well correlated and there is one outlier (Hawaii). 
+![shinysp](../03 Visualizations/shinyplot.png)
+
+## Crosstab
+This is a cross tab that shows the various average risk factors in the boxes, depeding on what race is on the x axis and what state is on the y axis. Some values are missing unfortunatley. But that's to be expected. You wouldn't think Hawaii would have many American Indians right? The KPI is dependent on wether that risk factor is especially high or low.
+![shinyct](../03 Visualizations/shinycross.png)
+
+## Barchart
+We've got this wonderful barchart whose x labels won't show up. The x axis is risk factor values. It's faceted by Race and the y axis is topic. The black numbers represent how large of a risk factor it is and the blue numbers represent how far away it is from the window average risk factor, which is the red number. There really shouldn't be multiple red bars on the tops, but that only appears in the notebook file. If you go to the shinyapp, they aren't there. 
+![shinybc](../03 Visualizations/shinybar.png)
