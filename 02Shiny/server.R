@@ -202,7 +202,7 @@ shinyServer(function(input, output){
     output$boxplotPlot1 <- renderPlotly({
       bxp <- ggplot(boxplotfunc()) +
              geom_boxplot(aes(x=Topic, y = Greater_Risk_Data_Value))+
-        lab(title = "Distribution of Risk Values by Topic", x = "Topics", y = "Risk Factor Values")
+        labs(title = "Distribution of Risk Values by Topic", x = "Topics", y = "Risk Factor Values") +
         theme_wsj() + scale_color_wsj()
       ggplotly(bxp)
     })
