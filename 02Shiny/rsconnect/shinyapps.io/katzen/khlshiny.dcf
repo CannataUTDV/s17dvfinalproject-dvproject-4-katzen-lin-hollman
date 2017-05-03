@@ -1,0 +1,11 @@
+name: khlshiny
+title: KHLShiny
+account: katzen
+server: shinyapps.io
+appId: 177370
+bundleId: 812772
+url: https://katzen.shinyapps.io/khlshiny/
+when: 1493775071.52107
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: hisServer.R|hisUi.R
