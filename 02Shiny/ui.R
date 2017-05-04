@@ -7,11 +7,14 @@ require(plotly)
 
 #boxplot items-----
 boxplotmenuitem <- menuItem("Box Plots", tabName = "boxplot", icon = icon("dashboard"))
-boxplotdatapanel <- tabPanel("Data", uiOutput("boxplotlist"),
+warning <- "It takes a while for things to load. Patience is a virtue. Also, some of the visualizations won't expand to fit the screen, if that happens click 'Show Below' where the code is shown"
+boxplotdatapanel <- tabPanel("Data", warning, uiOutput("boxplotlist"),
                              actionButton("boxplotbtn", "Get Data"),
                              DT::dataTableOutput("boxplotData"))
 boxplotvispanel <- tabPanel("Boxplot", plotlyOutput("boxplotPlot1", height=500))
-boxplottabitems <- tabItem(tabName = "boxplot", tabsetPanel(boxplotdatapanel, boxplotvispanel))
+description <- "This can take a while to load. Also, there is a known bug in Plotly where it won't render horizontal legend items (github.com/plotly/plotly.js/issues/53), so I have a ggplot here that describes the data, but also a plotly that you can play around with."
+boxplotvispanel2 <- tabPanel("Interesting Box Plots", description, plotOutput("boxplotPlot2"), plotlyOutput("boxplotPlot3"),plotOutput("boxplotPlot4"), plotlyOutput("boxplotPlot5"))
+boxplottabitems <- tabItem(tabName = "boxplot", tabsetPanel(boxplotdatapanel, boxplotvispanel2, boxplotvispanel))
 #end boxplot items-----
 
 #histogram items-----
@@ -43,7 +46,8 @@ crosstabdatapanel <- tabPanel("Data", uiOutput("crosstablist"),
                              actionButton("crosstabbtn", "Get Data"),
                              DT::dataTableOutput("crosstabData"))
 crosstabvispanel <- tabPanel("Crosstab", plotlyOutput("crosstabPlot1", height=1200))
-crosstabtabitems <- tabItem(tabName = "crosstab", tabsetPanel(crosstabdatapanel, crosstabvispanel))
+crosstabvispanel2 <- tabPanel("Intersting Crosstabs", description, plotOutput("crosstabPlot2", height = 1200), plotlyOutput("crosstabPlot3", height = 1200) )
+crosstabtabitems <- tabItem(tabName = "crosstab", tabsetPanel(crosstabdatapanel, crosstabvispanel2, crosstabvispanel))
 #end crosstab items-----
 
 #barchart items-----

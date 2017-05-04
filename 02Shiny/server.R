@@ -75,7 +75,8 @@ shinyServer(function(input, output){
                     postINC.`med.inc.age.25to44`
                     from postMED
                     inner join postINC on postMED.State = postINC.State
-                    where postMED.Grade != 'Total' and (postMED.YEAR = 1991 or postMED.YEAR = 2015)"
+                    where postMED.Grade != 'Total' and (postMED.YEAR = 1991 or postMED.YEAR = 2015)
+                    limit 1000"
     
     histogramquery <- "SELECT Greater_Risk_Data_Value, Race
                       from postMED"
@@ -97,6 +98,15 @@ shinyServer(function(input, output){
                       FROM postMED
                       Group By State, Race
                       Order by State, Race"
+    
+    crosstabquery2 <- "select postMED.ShortQuestionText, postMED.Sex, postMED.Race,
+AVG((Lesser_Risk_Data_Value - Greater_Risk_Data_Value) * ((postEDU.`edu.pacificislander.female.bachelors`+postEDU.`edu.pacificislander.male.bachelors`+postEDU.`edu.americanindian.male.bachelors`+postEDU.`edu.americanindian.female.bachelors`+postEDU.`edu.asian.male.bachelors`+postEDU.`edu.asian.female.bachelors`+postEDU.`edu.black.male.bachelors`+postEDU.`edu.black.female.bachelors`+postEDU.`edu.white.male.bachelors`+postEDU.`edu.white.female.bachelors`)/(postEDU.`edu.white`+postEDU.`edu.black`+postEDU.`edu.asian`+postEDU.`edu.americanindian`+postEDU.`edu.pacificislander`))) as kpi
+    from postMED
+    Inner Join postEDU on postEDU.State = postMED.State
+    where YEAR not in (1991, 1993, 1995, 1997, 1999) and Sex != 'Total' and Race != 'Total'
+    group by ShortQuestionText, Race, Sex
+    order by ShortQuestionText, Race, Sex desc
+    limit 1000"
     
     barchartquery <- "select Race, Topic, AVG(Greater_Risk_Data_Value) avg_grisk from postMED 
                       where (? = 'All' or Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))
@@ -121,15 +131,12 @@ shinyServer(function(input, output){
         queryParameters = list_forboxplot)
     })  
     
-    boxplotfunc2 <- eventReactive(input$boxplotbtn, {
-      print("Getting from data.world")
-      df <- query(
+    boxplotfunc2 <- query(
         data.world(propsfile = ".data.world"),
         dataset= database, 
         type="sql",
-        query=boxplotquery)
-      df$Grade <- factor(func$Grade, levels=c("9th", "10th", "11th", "12th"))
-    })  
+        query=boxplotquery2)
+    boxplotfunc2$Grade <- factor(boxplotfunc2$Grade, levels=c("9th", "10th", "11th", "12th"))
 
     histogramfunc <- eventReactive(input$histogrambtn, {
       print("Getting from data.world")
@@ -160,6 +167,13 @@ shinyServer(function(input, output){
         query=crosstabquery,
         queryParameters = list(KPI_Low(), KPI_Medium()))
     })  
+    
+    crosstabfunc2 <- query(
+        data.world(propsfile = ".data.world"),
+        dataset= database, 
+        type="sql",
+        query=crosstabquery2)
+    
     
 
     barchartfunc <- eventReactive(input$barchartbtn, {
@@ -220,58 +234,62 @@ shinyServer(function(input, output){
       bxp <- ggplot(boxplotfunc()) +
              geom_boxplot(aes(x=Topic, y = Greater_Risk_Data_Value))+
         labs(title = "Distribution of Risk Values by Topic", x = "Topics", y = "Risk Factor Values") +
-        theme_wsj() + scale_color_wsj()
+        ggthemes::theme_wsj() + scale_color_wsj() 
       ggplotly(bxp)
     })
     
-    output$boxplotPlot2 <- renderPlot({
-      boxplot2 <- ggplot(boxplotfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
-        facet_grid(~ShortQuestionText)+
-        geom_point(aes(color = factor(YEAR), size =med.inc.age.25to44)) +
-        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
-        geom_point(alpha = .01) +
-        scale_color_manual(values = c("orange", "purple"))+
-        theme_wsj() + 
-        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
-        ggtitle("How Income, Grade, and Year affect Risk Values")
+    boxplot2 <- ggplot(boxplotfunc2, aes(x = Grade, y = Greater_Risk_Data_Value)) +
+      facet_grid(~ShortQuestionText)+
+      geom_point(aes(color = factor(YEAR), size =med.inc.age.25to44)) +
+      geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+      geom_point(alpha = .01) +
+      scale_color_manual(values = c("orange", "purple"))+
+      ggthemes::theme_wsj() + 
+      labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
+      ggtitle("How Income, Grade, and Year affect Risk Values") +
       theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+    
+    output$boxplotPlot2 <- renderPlot({
+      boxplot2
     })
     
     output$boxplotPlot3 <- renderPlotly({
-      boxplot3 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+      boxplot3 <- ggplot(boxplotfunc2, aes(x = Grade, y = Greater_Risk_Data_Value)) +
         facet_grid(~ShortQuestionText)+
         geom_point(aes(color = factor(YEAR), size =med.inc.age.25to44)) +
         geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
         geom_point(alpha = .01) +
         scale_color_manual(values = c("orange", "purple"))+
-        theme_wsj() + 
+        ggthemes::theme_wsj() + 
         labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
-        ggtitle("How Income, Grade, and Year affect Risk Values")
+        ggtitle("How Income, Grade, and Year affect Risk Values") +
       theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
       ggplotly(boxplot3)
     })
       
+    boxplot4 <- ggplot(boxplotfunc2, aes(x = Grade, y = Greater_Risk_Data_Value)) +
+      facet_grid(~ShortQuestionText)+
+      geom_point(aes(color = med.inc.age.25to44, size =med.inc.age.25to44)) +
+      geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+      scale_color_gradient(low = "red", high = "green") +
+      geom_point(alpha = .01) +
+      ggthemes::theme_wsj() + 
+      labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
+      ggtitle("How Income and Grade affect Risk Values")+
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+    
     output$boxplotPlot4 <- renderPlot({
-      boxplot4 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
-        facet_grid(~ShortQuestionText)+
-        geom_point(aes(color = med.inc.age.25to44, size =med.inc.age.25to44)) +
-        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
-        scale_color_gradient(low = "red", high = "green") +
-        geom_point(alpha = .01) +
-        theme_wsj() + 
-        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
-        ggtitle("How Income and Grade affect Risk Values")+
-        theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      boxplot4
     })
     
     output$boxplotPlot5 <- renderPlotly({
-      boxplot5 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+      boxplot5 <- ggplot(boxplotfunc2, aes(x = Grade, y = Greater_Risk_Data_Value)) +
         facet_grid(~ShortQuestionText)+
         geom_point(aes(color = med.inc.age.25to44, size =med.inc.age.25to44)) +
         geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
         scale_color_gradient(low = "red", high = "green") +
         geom_point(alpha = .01) +
-        theme_wsj() + 
+        ggthemes::theme_wsj() + 
         labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
         ggtitle("How Income and Grade affect Risk Values")+
         theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
@@ -284,7 +302,7 @@ shinyServer(function(input, output){
         geom_histogram(aes(x= Greater_Risk_Data_Value, y = ..ncount..), binwidth = as.numeric(Bins())) +
         facet_wrap(~Race) +
         labs(x = "Risk Factor Values", y = "Count of Studies", "Does Intensity of Risk Factors vary by Race?") +
-        theme_wsj() + scale_color_wsj()
+        ggthemes::theme_wsj() + scale_color_wsj()
       ggplotly(histogramplot)
     })
 
@@ -296,7 +314,7 @@ shinyServer(function(input, output){
         geom_smooth(method=lm, se=FALSE, color = "red") +
         labs(x = "Percentage of Whites", y = "Average Risk Factor", 
              title = "Does Population perportion affect Risk Factors?") +
-        theme_wsj() + scale_color_wsj()
+        ggthemes::theme_wsj() + scale_color_wsj()
       ggplotly(scatterplot)
     })
 
@@ -305,10 +323,36 @@ shinyServer(function(input, output){
         geom_text(aes(x=Race, y=State, label=round(avg_risk)), size=6) +
         geom_tile(aes(x=Race, y=State, fill=kpi), alpha=0.5) +
         labs(title = "The Average Risk By Race and State") +
-        theme_wsj() + scale_color_wsj()
+        ggthemes::theme_wsj() + scale_color_wsj()
       ggplotly(crossplot)
     })
-    # 
+
+    crosstab2 <- ggplot(crosstabfunc2, aes(x = ShortQuestionText, y = Sex)) +
+      geom_tile(aes(fill=crosstabfunc2$kpi)) +
+      geom_text(label= round(crosstabfunc2$kpi), size=6) +
+      facet_wrap(~Race, ncol = 1) +
+      ggthemes::theme_wsj() + scale_fill_continuous(low = "red", high = "green") +
+      labs(y="", fill = "Positive Health KPI (larger is better)") + 
+      ggtitle("Breakdown of Positive Health Measures by Race and Sex") +
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+        
+    output$crosstabPlot2 <- renderPlot({
+      crosstab2
+    })
+    
+    output$crosstabPlot3 <- renderPlotly({
+      crosstab3 <- ggplot(crosstabfunc2, aes(x = ShortQuestionText, y = Sex)) +
+        geom_tile(aes(fill=crosstabfunc2$kpi)) +
+        geom_text(label= round(crosstabfunc2$kpi), size=6) +
+        facet_wrap(~Race, ncol = 1) +
+        ggthemes::theme_wsj() + scale_fill_continuous(low = "red", high = "green") +
+        labs(y="", fill = "Positive Health KPI (larger is better)") + 
+        ggtitle("Breakdown of Positive Health Measures by Race and Sex") +
+        theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      ggplotly(crosstab3)
+    })
+    
+    
     output$barchartPlot1 <- renderPlotly({
       barplot <- ggplot(barchartfunc(), aes(x = Topic, y=avg_grisk)) +
         scale_y_continuous(labels = scales::comma) + # no scientific notation
@@ -323,7 +367,7 @@ shinyServer(function(input, output){
         geom_hline(aes(yintercept = round(window_avg)), color="red") +
         geom_text(aes( .5, window_avg+5, label = round(window_avg), vjust = -.5, hjust = 1), color="red") +
         labs(x = "", y = "Average Risk", title = "Average Risk by Race and Topic")+
-        theme_wsj() + scale_color_wsj()
+        ggthemes::theme_wsj() + scale_color_wsj()
       ggplotly(barplot)
     })
     
