@@ -70,6 +70,13 @@ shinyServer(function(input, output){
                     from postMED
                     where (? = 'All' or postMED.Topic in (?, ?, ?, ?, ?, ?, ?, ?, ?))"
     
+    boxplotquery2 <- "select postMED.YEAR, postMED.Grade, 
+                    postMED.Greater_Risk_Data_Value, postMED.ShortQuestionText,
+                    postINC.`med.inc.age.25to44`
+                    from postMED
+                    inner join postINC on postMED.State = postINC.State
+                    where postMED.Grade != 'Total' and (postMED.YEAR = 1991 or postMED.YEAR = 2015)"
+    
     histogramquery <- "SELECT Greater_Risk_Data_Value, Race
                       from postMED"
     
@@ -112,6 +119,16 @@ shinyServer(function(input, output){
         type="sql",
         query=boxplotquery,
         queryParameters = list_forboxplot)
+    })  
+    
+    boxplotfunc2 <- eventReactive(input$boxplotbtn, {
+      print("Getting from data.world")
+      df <- query(
+        data.world(propsfile = ".data.world"),
+        dataset= database, 
+        type="sql",
+        query=boxplotquery)
+      df$Grade <- factor(func$Grade, levels=c("9th", "10th", "11th", "12th"))
     })  
 
     histogramfunc <- eventReactive(input$histogrambtn, {
@@ -206,7 +223,61 @@ shinyServer(function(input, output){
         theme_wsj() + scale_color_wsj()
       ggplotly(bxp)
     })
-        
+    
+    output$boxplotPlot2 <- renderPlot({
+      boxplot2 <- ggplot(boxplotfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+        facet_grid(~ShortQuestionText)+
+        geom_point(aes(color = factor(YEAR), size =med.inc.age.25to44)) +
+        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+        geom_point(alpha = .01) +
+        scale_color_manual(values = c("orange", "purple"))+
+        theme_wsj() + 
+        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
+        ggtitle("How Income, Grade, and Year affect Risk Values")
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+    })
+    
+    output$boxplotPlot3 <- renderPlotly({
+      boxplot3 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+        facet_grid(~ShortQuestionText)+
+        geom_point(aes(color = factor(YEAR), size =med.inc.age.25to44)) +
+        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+        geom_point(alpha = .01) +
+        scale_color_manual(values = c("orange", "purple"))+
+        theme_wsj() + 
+        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
+        ggtitle("How Income, Grade, and Year affect Risk Values")
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      ggplotly(boxplot3)
+    })
+      
+    output$boxplotPlot4 <- renderPlot({
+      boxplot4 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+        facet_grid(~ShortQuestionText)+
+        geom_point(aes(color = med.inc.age.25to44, size =med.inc.age.25to44)) +
+        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+        scale_color_gradient(low = "red", high = "green") +
+        geom_point(alpha = .01) +
+        theme_wsj() + 
+        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
+        ggtitle("How Income and Grade affect Risk Values")+
+        theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+    })
+    
+    output$boxplotPlot5 <- renderPlotly({
+      boxplot5 <- ggplot(boxploxfunc2(), aes(x = Grade, y = Greater_Risk_Data_Value)) +
+        facet_grid(~ShortQuestionText)+
+        geom_point(aes(color = med.inc.age.25to44, size =med.inc.age.25to44)) +
+        geom_boxplot(aes(x = Grade, y = Greater_Risk_Data_Value, color = NULL), alpha = .1)+
+        scale_color_gradient(low = "red", high = "green") +
+        geom_point(alpha = .01) +
+        theme_wsj() + 
+        labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
+        ggtitle("How Income and Grade affect Risk Values")+
+        theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      ggplotly(boxplot5)
+    })
+      
     output$histogramPlot1 <- renderPlotly({
       histogramplot <- ggplot(histogramfunc()) + 
         theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
