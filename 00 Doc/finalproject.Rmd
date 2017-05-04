@@ -28,7 +28,7 @@ The first is titled "DASH - Youth Risk Behavior Surveillance System (YRBSS)". Th
 
 The DASH survey asked questions pertaining to youth risk behavior on both positive and negative ends of the spectrum. "Greater Risk Data Values" are quantitative scores gathered from affirmative responses to questions pertaining to health-detrimental behaviors. "Lesser Risk Data Values" are quantitative scores gathered from affirmative responses to questions pertaining to health-beneficient behaviors.
 
-The remaining data was sourced from US national census bureau data. We explored population demographics of education, income, employment, and race.
+The remaining data was sourced from US national census bureau data. We explored population demographics of education, income, employment, and race across the nation, by state.
 
 ##**Extract-Translate-Load (ETL)**
 In order to extract the pertinent data from our raw CSVs, we generated a number of R-scripts that tidied current data and excised nonrelevant data that were not used in our Tableau and ShinyApp visualizations. Our cleaned-up (post-ETL) versions were then uploaded to the data.world servers, available for downloading and querying.
@@ -105,6 +105,10 @@ Lastly, our KPI heatmap showed a significant relationship between geographic loc
 ## Aggregated Measures Analysis
 The visualization below is the histogram that compare average greater risk data value and lesser risk data value. As you can see the sum of the average greater risk data value and lesser risk data values is 100. The survey has certain questions that measure the degree of the risk value.Carlifornia has the most lesser risk data value of 76.37. And Vermont has the highest greater risk data value of 35.13. 
 ![ag](../03 Visualizations/histogram.png)
+
+## Scatterplots
+Our scatterplot plotted the average values of the Greater Risk Data Value Questions against the proportion of caucasian (white) individuals in the state. While seemingly uncorrelated, there is a small positive correlation between the average Risk scores and the proportion of white individuals in the state. Joins were used to attach US census bureau data of proportions of race by state to Youth Risk Surveillance data. 
+![sp](../03 Visualizations/Scatterplot.png)
 
 
 ## Barcharts
