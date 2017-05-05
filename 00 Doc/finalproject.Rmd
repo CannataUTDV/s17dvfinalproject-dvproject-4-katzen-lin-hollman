@@ -64,7 +64,7 @@ sample(postMED, size=15)
 This boxplot breaks down the DASH youth behavioral survey responses down by grade and question type, illustrating how certain behaviors increase and others attenuate as students progress through the grades. Pages were set to flip through the data by year. Joins were used in this visualization to illustrate the median household income of the state where each data point was collected: lower income values are plotted in red, while higher income values are plotted in green (Household median income values were sourced from US census bureau data and added onto tableau by use of joins). (we realized that the bunching of darker green circles around the center of the boxplots is most likely just a software effect of tableau when handling a high samplze size, rather that the data suggesting a relationship between highest median income and the average response value)
 
 This visualization shows us a couple patterns and intersting things about risky behavior and youth:
-First, some risk factors, such as physical fighting and suicide consideration, tend to decrease as one progresses through Highschool, while some factors remain flat (such as diet) and some increase (alcohol, cigarette, and marijuana use).
+First, some risk factors, such as physical fighting and suicide consideration, tend to decrease as one progresses through Highschool, while some factors remain flat (such as diet) and some increase (alcohol, cigarette, and marijuana use). The dots represent the risk value of one survey question when the sample size was > 100
 
 
 ![boxplot](../03 Visualizations/boxplotjoins2.png)
@@ -96,7 +96,7 @@ An analogous way of saying this would be to say that the data suggests that fema
 ![CrosstabKPI](../03 Visualizations/Crosstab+KPI1.png)
 
 
-Lastly, our KPI heatmap showed a significant relationship between geographic location and KPI score. The map below shows groupings of KPI values, with states geographically closer to each other sharing similar KPI scores as well.
+Lastly, our KPI heatmap showed a significant relationship between geographic location and KPI score. The map below shows groupings of KPI values, with states geographically closer to each other sharing similar KPI scores as well. 
 ![CrosstabKPImap](../03 Visualizations/Crosstab+KPI3.png)
 
 

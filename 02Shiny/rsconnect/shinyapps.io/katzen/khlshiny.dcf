@@ -3,8 +3,8 @@ title: KHLShiny
 account: katzen
 server: shinyapps.io
 appId: 177370
-bundleId: 814476
+bundleId: 815906
 url: https://katzen.shinyapps.io/khlshiny/
-when: 1493880477.29978
+when: 1493960026.16039
 asMultiple: FALSE
 asStatic: FALSE

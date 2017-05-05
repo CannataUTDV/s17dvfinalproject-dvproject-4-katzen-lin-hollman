@@ -13,7 +13,8 @@ boxplotdatapanel <- tabPanel("Data", warning, uiOutput("boxplotlist"),
                              DT::dataTableOutput("boxplotData"))
 boxplotvispanel <- tabPanel("Boxplot", plotlyOutput("boxplotPlot1", height=500))
 description <- "This can take a while to load. Also, there is a known bug in Plotly where it won't render horizontal legend items (github.com/plotly/plotly.js/issues/53), so I have a ggplot here that describes the data, but also a plotly that you can play around with."
-boxplotvispanel2 <- tabPanel("Interesting Box Plots", description, plotOutput("boxplotPlot2"), plotlyOutput("boxplotPlot3"),plotOutput("boxplotPlot4"), plotlyOutput("boxplotPlot5"))
+boxplotvispanel2 <- tabPanel("Interesting Box Plots", description, "\nThe dots represent the risk value of one survey question when the sample size was > 100",
+                             plotOutput("boxplotPlot2", height = 1200), plotlyOutput("boxplotPlot3", height = 1200),plotOutput("boxplotPlot4", height = 1200), plotlyOutput("boxplotPlot5", height = 1200))
 boxplottabitems <- tabItem(tabName = "boxplot", tabsetPanel(boxplotdatapanel, boxplotvispanel2, boxplotvispanel))
 #end boxplot items-----
 

@@ -247,7 +247,7 @@ AVG((Lesser_Risk_Data_Value - Greater_Risk_Data_Value) * ((postEDU.`edu.pacifici
       ggthemes::theme_wsj() + 
       labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
       ggtitle("How Income, Grade, and Year affect Risk Values") +
-      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      theme(axis.title = element_text(size = 16), plot.title = element_text(hjust = 0), strip.text.x = element_text(size = 20))
     
     output$boxplotPlot2 <- renderPlot({
       boxplot2
@@ -263,7 +263,7 @@ AVG((Lesser_Risk_Data_Value - Greater_Risk_Data_Value) * ((postEDU.`edu.pacifici
         ggthemes::theme_wsj() + 
         labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Years", size = "Median Income") + 
         ggtitle("How Income, Grade, and Year affect Risk Values") +
-      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0), strip.text.x = element_text(size = 20))
       ggplotly(boxplot3)
     })
       
@@ -276,7 +276,7 @@ AVG((Lesser_Risk_Data_Value - Greater_Risk_Data_Value) * ((postEDU.`edu.pacifici
       ggthemes::theme_wsj() + 
       labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
       ggtitle("How Income and Grade affect Risk Values")+
-      theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+      theme(axis.title = element_text(), plot.title = element_text(hjust = 0), strip.text.x = element_text(size = 20))
     
     output$boxplotPlot4 <- renderPlot({
       boxplot4
@@ -292,7 +292,7 @@ AVG((Lesser_Risk_Data_Value - Greater_Risk_Data_Value) * ((postEDU.`edu.pacifici
         ggthemes::theme_wsj() + 
         labs(x = "Grade Levels", y = "Risk Values\n(Greater is Riskier)", color = "Median Income", size = "Median Income") + 
         ggtitle("How Income and Grade affect Risk Values")+
-        theme(axis.title = element_text(), plot.title = element_text(hjust = 0))
+        theme(axis.title = element_text(), plot.title = element_text(hjust = 0), strip.text.x = element_text(size = 20))
       ggplotly(boxplot5)
     })
       
